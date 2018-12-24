@@ -1,0 +1,8 @@
+module Click_7x10_Y_config
+
+include Click_7x10_Y_types
+
+const
+    _C7X10Y_SPI_CFG as uint32_t[3] = (_SPI_MASTER, _SPI_FCY_DIV2, _SPI_CLK_LO_LEADING)
+    
+end.

@@ -1,0 +1,118 @@
+'
+'Example for 7x10_Y Click
+'
+'    Date          : Jan 2018.
+'    Author        : MikroE Team
+'
+'Test configuration AVR :
+'    
+'    MCU              : ATMEGA32
+'    Dev. Board       : EasyAVR v7 
+'    AVR Compiler ver : v7.0.1.0
+'
+'---
+'
+'Description :
+'
+'The application is composed of three sections :
+'
+'- System Initialization - GPIO and SPI bus initialization
+'- Application Initialization - Driver initialization
+'- Application Task - (code snippet) 
+'  1. Text scrolling
+'  2. Counts from 0 to 10
+'  3. Displays random pixels
+'
+'
+program Click_7x10_Y_AVR
+
+include Click_7x10_Y_types
+include Click_7x10_Y_config
+
+dim
+    mikroe_txt as uint8_t[20] 
+    
+sub procedure systemInit() 
+
+    mikrobus_gpioInit(_MIKROBUS1, _MIKROBUS_AN_PIN, _GPIO_OUTPUT) 
+    mikrobus_gpioInit(_MIKROBUS1, _MIKROBUS_RST_PIN, _GPIO_OUTPUT) 
+    mikrobus_gpioInit(_MIKROBUS1, _MIKROBUS_CS_PIN, _GPIO_OUTPUT) 
+    mikrobus_gpioInit(_MIKROBUS1, _MIKROBUS_PWM_PIN, _GPIO_OUTPUT) 
+    mikrobus_spiInit(_MIKROBUS1, @_C7X10Y_SPI_CFG[0]) 
+    Delay_ms(100) 
+
+end sub
+
+sub procedure applicationInit() 
+
+    c7x10y_spiDriverInit(T_C7X10Y_P(@_MIKROBUS1_GPIO), T_C7X10Y_P(@_MIKROBUS1_SPI)) 
+    c7x10y_clearDisplay() 
+
+end sub
+
+sub procedure applicationTask() 
+dim
+    i as uint8_t
+    j as uint8_t
+    endOp as uint8_t
+
+    endOp = 1 
+    c7x10y_drawText(@mikroe_txt[0]) 
+    c7x10y_scrollEnable(_C7X10Y_SPEED_MED) 
+    while ((0 <> endOp)) 
+        endOp = c7x10y_refreshDisplay() 
+        c7x10y_tick() 
+        Delay_ms(1) 
+    wend
+    c7x10y_scrollDisable() 
+    c7x10y_clearDisplay() 
+    for i = 0 to 11-1
+        c7x10y_clearDisplay() 
+        c7x10y_drawNumber(i) 
+        for j = 0 to 30-1
+            c7x10y_refreshDisplay() 
+            Delay_ms(1) 
+        next j
+    next i
+    c7x10y_clearDisplay() 
+    c7x10y_drawPixel(2, 3) 
+    c7x10y_drawPixel(2, 8) 
+    c7x10y_drawPixel(6, 3) 
+    c7x10y_drawPixel(6, 8) 
+    for i = 0 to 255-1
+        c7x10y_refreshDisplay() 
+        Delay_ms(1) 
+    next i
+    c7x10y_clearDisplay() 
+
+end sub
+
+main :
+    mikroe_txt[0] = " "
+    mikroe_txt[1] = " "
+    mikroe_txt[2] = "M"
+    mikroe_txt[3] = "i"
+    mikroe_txt[4] = "k"
+    mikroe_txt[5] = "r"
+    mikroe_txt[6] = "o"
+    mikroe_txt[7] = " "
+    mikroe_txt[8] = "E"
+    mikroe_txt[9] = "l"
+    mikroe_txt[10] = "e"
+    mikroe_txt[11] = "k"
+    mikroe_txt[12] = "t"
+    mikroe_txt[13] = "r"
+    mikroe_txt[14] = "o"
+    mikroe_txt[15] = "n"
+    mikroe_txt[16] = "i"
+    mikroe_txt[17] = "k"
+    mikroe_txt[18] = "a"
+    mikroe_txt[19] = 0
+
+    systemInit() 
+    applicationInit() 
+    while (1) 
+        applicationTask() 
+    wend
+
+end.
